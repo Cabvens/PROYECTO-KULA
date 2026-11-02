@@ -306,6 +306,171 @@ MALLA_CURRICULAR = {
             "Semestre 10": ["Taller de Memoria II"]
         }
     },
+    "Antropología (Arqueología)": {
+        "1° Año": {
+            "Semestre 1": [
+                "Evolución Humana",
+                "Formación de la Sociedad Moderna",
+                "Problemas Fundamentales de la Antropología I",
+                "Filosofía de las Ciencias Sociales",
+                "Taller I",
+                "Curso Transversal de Facultad",
+                "Inglés I"
+            ],
+            "Semestre 2": [
+                "Cazadores Recolectores",
+                "Formación de la Sociedad Chilena",
+                "Problemas Fundamentales de la Antropología II",
+                "Teoría Social",
+                "Taller II",
+                "Deportivo/Artístico Cultural",
+                "Inglés II"
+            ]
+        },
+        "2° Año": {
+            "Semestre 3": [
+                "Sociedades Complejas",
+                "Problemas Contemporáneos de la Antropología",
+                "Problemas Fundamentales de la Antropología III",
+                "Estadística I",
+                "Taller III",
+                "CFG",
+                "Inglés III"
+            ],
+            "Semestre 4": [
+                "Electivo de Especialización",
+                "Problemas Fundamentales de la Antropología IV",
+                "Estadística II",
+                "Taller IV",
+                "Curso Transversal de Facultad",
+                "Inglés IV"
+            ]
+        },
+        "3° Año": {
+            "Semestre 5": [
+                "Etnologías y Estudios Interculturales I",
+                "Teoría Arqueológica I",
+                "Problemas de Prehistoria I",
+                "Laboratorio I",
+                "Manejo de Colecciones",
+                "Taller de Investigación Social Aplicada"
+            ],
+            "Semestre 6": [
+                "Etnologías y Estudios Interculturales II",
+                "Teoría Arqueológica II",
+                "Problemas de Prehistoria II",
+                "Laboratorio II",
+                "Laboratorio III",
+                "Métodos y Técnicas de Terreno I",
+                "Taller de Arqueología Cuantitativa"
+            ]
+        },
+        "4° Año": {
+            "Semestre 7": [
+                "Etnologías y Estudios Interculturales III",
+                "Teoría Arqueológica III",
+                "Problemas de Prehistoria III",
+                "Laboratorio IV",
+                "Laboratorio V",
+                "Métodos y Técnicas de Terreno II",
+                "Taller de Investigación I"
+            ],
+            "Semestre 8": [
+                "Problemas Contemporáneos",
+                "Teoría Arqueológica IV",
+                "Problemas de Prehistoria IV",
+                "Arqueología Aplicada al Patrimonio",
+                "Métodos y Técnicas de Terreno III",
+                "Métodos y Técnicas de Terreno IV",
+                "Taller de Investigación II"
+            ]
+        },
+        "5° Año": {
+            "Semestre 9": ["Taller de Memoria I", "Práctica Profesional"],
+            "Semestre 10": ["Taller de Memoria II"]
+        }
+    },
+    "Antropología (Física)": {
+        "1° Año": {
+            "Semestre 1": [
+                "Evolución Humana",
+                "Formación de la Sociedad Moderna",
+                "Problemas Fundamentales de la Antropología I",
+                "Filosofía de las Ciencias Sociales",
+                "Taller I",
+                "Curso Transversal de Facultad",
+                "Inglés I"
+            ],
+            "Semestre 2": [
+                "Cazadores Recolectores",
+                "Formación de la Sociedad Chilena",
+                "Problemas Fundamentales de la Antropología II",
+                "Teoría Social",
+                "Taller II",
+                "Deportivo/Artístico Cultural",
+                "Inglés II"
+            ]
+        },
+        "2° Año": {
+            "Semestre 3": [
+                "Sociedades Complejas",
+                "Problemas Contemporáneos de la Antropología",
+                "Problemas Fundamentales de la Antropología III",
+                "Estadística I",
+                "Taller III",
+                "CFG",
+                "Inglés III"
+            ],
+            "Semestre 4": [
+                "Electivo de Especialización",
+                "Problemas Fundamentales de la Antropología IV",
+                "Estadística II",
+                "Taller IV",
+                "Curso Transversal de Facultad",
+                "Inglés IV"
+            ]
+        },
+        "3° Año": {
+            "Semestre 5": [
+                "Etnologías y Estudios Interculturales I",
+                "Teoría Antropología Biológica I",
+                "Método Antropología Biológica I",
+                "Bioarqueología",
+                "Anatomía",
+                "Taller de Investigación Social Aplicada"
+            ],
+            "Semestre 6": [
+                "Etnologías y Estudios Interculturales II",
+                "Teoría Antropología Biológica II",
+                "Método Antropología Biológica II",
+                "Paleopatología",
+                "Histología",
+                "Taller de Estadística para Antropología Física"
+            ]
+        },
+        "4° Año": {
+            "Semestre 7": [
+                "Etnologías y Estudios Interculturales III",
+                "Teoría Antropología Biológica III",
+                "Método Antropología Biológica III",
+                "Antropología Forense",
+                "Fisiología",
+                "Taller de Investigación I"
+            ],
+            "Semestre 8": [
+                "Problemas Contemporáneos",
+                "Teoría Antropología Biológica IV",
+                "Método Antropología Biológica IV",
+                "Paleantropología",
+                "Crecimiento, Desarrollo y Nutrición",
+                "Taller de Investigación II"
+            ]
+        },
+        "5° Año": {
+            "Semestre 9": ["Taller de Memoria I", "Práctica Profesional"],
+            "Semestre 10": ["Taller de Memoria II"]
+        }
+    },
     "Pedagogía en Educación Especial": {
         "1° Año": {
             "Semestre 1": [
@@ -433,4 +598,3 @@ def agregar_material(db, carrera, ano, semestre, asignatura, nuevo_item):
     db.setdefault(carrera, {}).setdefault(ano, {}).setdefault(semestre, {}).setdefault(asignatura, [])
     db[carrera][ano][semestre][asignatura].append(nuevo_item)
     guardar_datos(db)
-    
