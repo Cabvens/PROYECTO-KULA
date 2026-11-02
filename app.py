@@ -17,18 +17,14 @@ if "db" not in st.session_state:
 st.title("📚 Proyecto Kula: Repositorio Académico FACSO")
 st.caption("Plataforma de colaboración académica estandarizada según la malla curricular oficial.")
 
-# ------------------------------------------------------------------------------
-# FILTROS LATERALES (EXPLORACIÓN DE MATERIALES)
-# ------------------------------------------------------------------------------
+# Navegación lateral
 st.sidebar.header("🎯 Estado Académico")
 carrera_sel = st.sidebar.selectbox("Carrera", CARRERAS)
 ano_sel = st.sidebar.selectbox("Año Académico", ANOS)
 
-# Los semestres se actualizan automáticamente según el año seleccionado
 semestres_disponibles = obtener_semestres_por_ano(ano_sel)
 semestre_sel = st.sidebar.selectbox("Semestre", semestres_disponibles)
 
-# Ramos de la malla oficial
 ramos_oficiales = obtener_ramos_oficiales(carrera_sel, ano_sel, semestre_sel)
 
 tab_explorar, tab_subir = st.tabs(["🔍 Explorar Materiales", "📤 Aportar Material"])
@@ -44,7 +40,6 @@ with tab_explorar:
     else:
         asig_sel = st.selectbox("Selecciona la Asignatura Oficial:", ramos_oficiales, key="explorar_asig")
         
-        # Buscar materiales guardados
         carrera_dict = st.session_state.db.get(carrera_sel, {}).get(ano_sel, {}).get(semestre_sel, {})
         materiales = carrera_dict.get(asig_sel, [])
 
@@ -54,18 +49,27 @@ with tab_explorar:
             st.info(f"💡 Aún no hay archivos subidos para {asig_sel}. ¡Sé el primero en aportar en la pestaña 'Aportar Material'!")
         else:
             for idx, item in enumerate(materiales):
+                # Resguardo contra claves faltantes en datos antiguos
+                titulo = item.get("titulo", "Sin título")
+                tipo = item.get("tipo", "Material")
+                autor = item.get("autor", "Anónimo")
+                desc = item.get("descripcion", "")
+                link = item.get("link", "#")
+                votos = item.get("votos", 0)
+
                 with st.container(border=True):
                     col1, col2 = st.columns([4, 1])
                     with col1:
-                        st.markdown(f"#### 📄 {item['titulo']}")
-                        st.markdown(f"**Tipo:** `{item['tipo']}` | **Aportado por:** _{item['autor']}_")
-                        st.write(item["descripcion"])
-                        st.markdown(f"🔗 [Acceder al enlace del archivo]({item['link']})")
+                        st.markdown(f"#### 📄 {titulo}")
+                        st.markdown(f"**Tipo:** `{tipo}` | **Aportado por:** _{autor}_")
+                        if desc:
+                            st.write(desc)
+                        st.markdown(f"🔗 [Acceder al enlace del archivo]({link})")
 
                     with col2:
-                        st.metric(label="Utilidad", value=f"👍 {item['votos']}")
+                        st.metric(label="Utilidad", value=f"👍 {votos}")
                         if st.button("Votar útil", key=f"voto_{asig_sel}_{idx}"):
-                            item["votos"] += 1
+                            item["votos"] = votos + 1
                             guardar_datos(st.session_state.db)
                             st.rerun()
 
@@ -76,18 +80,15 @@ with tab_subir:
     st.subheader("Formulario de Aporte Académico")
     st.write("Selecciona los datos de tu ramo y comparte tu material con la comunidad.")
 
-    # Selectores dinámicos e interactivos fuera del formulario
     col_c1, col_c2, col_c3 = st.columns(3)
     with col_c1:
         form_carrera = st.selectbox("Carrera de destino", CARRERAS, index=CARRERAS.index(carrera_sel), key="subir_carrera")
     with col_c2:
         form_ano = st.selectbox("Año Académico", ANOS, index=ANOS.index(ano_sel), key="subir_ano")
     with col_c3:
-        # Semestres dinámicos según el año seleccionado en el formulario
         form_semestres_opciones = obtener_semestres_por_ano(form_ano)
         form_semestre = st.selectbox("Semestre", form_semestres_opciones, key="subir_semestre")
 
-    # Ramos disponibles dinámicamente según Carrera, Año y Semestre elegidos
     form_ramos_disponibles = obtener_ramos_oficiales(form_carrera, form_ano, form_semestre)
 
     if not form_ramos_disponibles:
@@ -95,7 +96,6 @@ with tab_subir:
     else:
         form_asig = st.selectbox("Asignatura Oficial de la Malla", form_ramos_disponibles, key="subir_asig")
 
-        # Formulario para los campos de texto e hipervínculos
         with st.form("form_detalles_material", clear_on_submit=True):
             form_titulo = st.text_input("Título del Material (Ej: Resumen Control 1)").strip()
             form_tipo = st.selectbox("Tipo de Documento", ["Resumen", "Guía de Ejercicios", "Prueba/Pauta Anterior", "Apunte de Clase", "Otro"])

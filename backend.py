@@ -3,7 +3,6 @@ import os
 
 DB_FILE = "repositorio_data.json"
 
-# Mapeo dinamico de semestres segun el año academico
 SEMESTRES_POR_ANO = {
     "1° Año": ["Semestre 1", "Semestre 2"],
     "2° Año": ["Semestre 3", "Semestre 4"],
@@ -12,7 +11,6 @@ SEMESTRES_POR_ANO = {
     "5° Año": ["Semestre 9", "Semestre 10"]
 }
 
-# Base de datos oficial de ramos segun Malla Curricular FACSO
 MALLA_CURRICULAR = {
     "Sociología": {
         "1° Año": {
@@ -392,11 +390,9 @@ CARRERAS = list(MALLA_CURRICULAR.keys())
 ANOS = ["1° Año", "2° Año", "3° Año", "4° Año", "5° Año"]
 
 def obtener_semestres_por_ano(ano):
-    """Devuelve la lista de semestres correlativos correspondientes al año academico escogido."""
     return SEMESTRES_POR_ANO.get(ano, ["Semestre 1", "Semestre 2"])
 
 def obtener_ramos_oficiales(carrera, ano, semestre):
-    """Devuelve únicamente la lista de ramos oficiales segun carrera, año y semestre."""
     return MALLA_CURRICULAR.get(carrera, {}).get(ano, {}).get(semestre, [])
 
 def cargar_datos():
