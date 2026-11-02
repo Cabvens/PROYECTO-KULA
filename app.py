@@ -15,17 +15,22 @@ if "db" not in st.session_state:
     st.session_state.db = cargar_datos()
 
 st.title("📚 Proyecto Kula: Repositorio Académico FACSO")
-st.caption("Tu aporte puede cambiarle el semestre a alguien. ¡Comparte tus materiales y ayuda a la comunidad FACSO!")
+st.caption("Plataforma de colaboración académica estandarizada según la malla curricular oficial.")
 
-# Navegación lateral
-st.sidebar.header("🎯 Estado Académico")
-carrera_sel = st.sidebar.selectbox("Carrera", CARRERAS)
-ano_sel = st.sidebar.selectbox("Año Académico", ANOS)
+# ------------------------------------------------------------------------------
+# FILTROS LATERALES: PERFIL Y NAVEGACIÓN
+# ------------------------------------------------------------------------------
+st.sidebar.header("👤 Perfil del Estudiante")
+carrera_sel = st.sidebar.selectbox("Tu Carrera", CARRERAS)
+nivel_estudiante = st.sidebar.selectbox("Tu Nivel Académico Actual", ANOS, index=0)
 
-semestres_disponibles = obtener_semestres_por_ano(ano_sel)
-semestre_sel = st.sidebar.selectbox("Semestre", semestres_disponibles)
+st.sidebar.divider()
+st.sidebar.header("🎯 Navegación de Contenido")
+ano_destino = st.sidebar.selectbox("Año a Consultar / Aportar", ANOS, index=ANOS.index(nivel_estudiante))
+semestres_disponibles = obtener_semestres_por_ano(ano_destino)
+semestre_destino = st.sidebar.selectbox("Semestre", semestres_disponibles)
 
-ramos_oficiales = obtener_ramos_oficiales(carrera_sel, ano_sel, semestre_sel)
+ramos_oficiales = obtener_ramos_oficiales(carrera_sel, ano_destino, semestre_destino)
 
 tab_explorar, tab_subir = st.tabs(["🔍 Explorar Materiales", "📤 Aportar Material"])
 
@@ -33,14 +38,14 @@ tab_explorar, tab_subir = st.tabs(["🔍 Explorar Materiales", "📤 Aportar Mat
 # TAB 1: EXPLORAR MATERIALES
 # ------------------------------------------------------------------------------
 with tab_explorar:
-    st.subheader(f"Navegando: {carrera_sel} > {ano_sel} > {semestre_sel}")
+    st.subheader(f"Navegando: {carrera_sel} > {ano_destino} > {semestre_destino}")
 
     if not ramos_oficiales:
         st.warning("No hay asignaturas registradas en la malla curricular para este semestre específico.")
     else:
         asig_sel = st.selectbox("Selecciona la Asignatura Oficial:", ramos_oficiales, key="explorar_asig")
         
-        carrera_dict = st.session_state.db.get(carrera_sel, {}).get(ano_sel, {}).get(semestre_sel, {})
+        carrera_dict = st.session_state.db.get(carrera_sel, {}).get(ano_destino, {}).get(semestre_destino, {})
         materiales = carrera_dict.get(asig_sel, [])
 
         st.markdown(f"### Materiales para **{asig_sel}** ({len(materiales)})")
@@ -49,7 +54,6 @@ with tab_explorar:
             st.info(f"💡 Aún no hay archivos subidos para {asig_sel}. ¡Sé el primero en aportar en la pestaña 'Aportar Material'!")
         else:
             for idx, item in enumerate(materiales):
-                # Resguardo contra claves faltantes en datos antiguos
                 titulo = item.get("titulo", "Sin título")
                 tipo = item.get("tipo", "Material")
                 autor = item.get("autor", "Anónimo")
@@ -74,49 +78,49 @@ with tab_explorar:
                             st.rerun()
 
 # ------------------------------------------------------------------------------
-# TAB 2: APORTAR MATERIAL
+# TAB 2: APORTAR MATERIAL (RESTRINGIDO POR NIVEL Y CONTEXTO HEREDADO)
 # ------------------------------------------------------------------------------
 with tab_subir:
     st.subheader("Formulario de Aporte Académico")
-    st.write("Selecciona los datos de tu ramo y comparte tu material con la comunidad.")
 
-    col_c1, col_c2, col_c3 = st.columns(3)
-    with col_c1:
-        form_carrera = st.selectbox("Carrera de destino", CARRERAS, index=CARRERAS.index(carrera_sel), key="subir_carrera")
-    with col_c2:
-        form_ano = st.selectbox("Año Académico", ANOS, index=ANOS.index(ano_sel), key="subir_ano")
-    with col_c3:
-        form_semestres_opciones = obtener_semestres_por_ano(form_ano)
-        form_semestre = st.selectbox("Semestre", form_semestres_opciones, key="subir_semestre")
+    # Evaluación de permisos según nivel del alumno
+    idx_estudiante = ANOS.index(nivel_estudiante)
+    idx_destino = ANOS.index(ano_destino)
 
-    form_ramos_disponibles = obtener_ramos_oficiales(form_carrera, form_ano, form_semestre)
-
-    if not form_ramos_disponibles:
-        st.error("La combinación seleccionada no posee asignaturas en la malla oficial.")
+    if idx_destino > idx_estudiante:
+        st.warning(
+            f"🔒 **Restricción de Nivel Académico:** Tu nivel actual registrado es **{nivel_estudiante}**. "
+            f"No estás habilitado para subir material a **{ano_destino}**. "
+            f"Solo puedes aportar apuntes para tu año actual o años anteriores."
+        )
     else:
-        form_asig = st.selectbox("Asignatura Oficial de la Malla", form_ramos_disponibles, key="subir_asig")
+        st.info(f"📌 Publicando material en: **{carrera_sel}** > **{ano_destino}** > **{semestre_destino}**")
 
-        with st.form("form_detalles_material", clear_on_submit=True):
-            form_titulo = st.text_input("Título del Material (Ej: Resumen Control 1)").strip()
-            form_tipo = st.selectbox("Tipo de Documento", ["Resumen", "Guía de Ejercicios", "Prueba/Pauta Anterior", "Apunte de Clase", "Otro"])
-            form_autor = st.text_input("Tu Nombre o Apodo (Opcional)", value="Anónimo").strip()
-            form_link = st.text_input("Enlace al archivo (Google Drive, Dropbox, etc.)").strip()
-            form_desc = st.text_area("Descripción breve del contenido").strip()
+        if not ramos_oficiales:
+            st.error("La sección seleccionada no posee asignaturas en la malla oficial.")
+        else:
+            with st.form("form_aporte_simplificado", clear_on_submit=True):
+                form_asig = st.selectbox("Asignatura Oficial de la Malla", ramos_oficiales, key="subir_asig")
+                form_titulo = st.text_input("Título del Material (Ej: Resumen Control 1)").strip()
+                form_tipo = st.selectbox("Tipo de Documento", ["Resumen", "Guía de Ejercicios", "Prueba/Pauta Anterior", "Apunte de Clase", "Otro"])
+                form_autor = st.text_input("Tu Nombre o Apodo (Opcional)", value="Anónimo").strip()
+                form_link = st.text_input("Enlace al archivo (Google Drive, Dropbox, etc.)").strip()
+                form_desc = st.text_area("Descripción breve del contenido").strip()
 
-            enviado = st.form_submit_button("🚀 Publicar Material")
+                enviado = st.form_submit_button("🚀 Publicar Material")
 
-            if enviado:
-                if form_asig and form_titulo and form_link:
-                    nuevo = {
-                        "titulo": form_titulo,
-                        "autor": form_autor if form_autor else "Anónimo",
-                        "tipo": form_tipo,
-                        "link": form_link,
-                        "descripcion": form_desc,
-                        "votos": 0
-                    }
-                    agregar_material(st.session_state.db, form_carrera, form_ano, form_semestre, form_asig, nuevo)
-                    st.success(f"¡Material '{form_titulo}' publicado con éxito para {form_asig} ({form_semestre})!")
-                    st.rerun()
-                else:
-                    st.error("Por favor completa los campos obligatorios: Título y Enlace.")
+                if enviado:
+                    if form_asig and form_titulo and form_link:
+                        nuevo = {
+                            "titulo": form_titulo,
+                            "autor": form_autor if form_autor else "Anónimo",
+                            "tipo": form_tipo,
+                            "link": form_link,
+                            "descripcion": form_desc,
+                            "votos": 0
+                        }
+                        agregar_material(st.session_state.db, carrera_sel, ano_destino, semestre_destino, form_asig, nuevo)
+                        st.success(f"¡Material '{form_titulo}' publicado con éxito en {form_asig}!")
+                        st.rerun()
+                    else:
+                        st.error("Por favor completa los campos obligatorios: Título y Enlace.")

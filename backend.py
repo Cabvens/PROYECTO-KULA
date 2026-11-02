@@ -433,3 +433,4 @@ def agregar_material(db, carrera, ano, semestre, asignatura, nuevo_item):
     db.setdefault(carrera, {}).setdefault(ano, {}).setdefault(semestre, {}).setdefault(asignatura, [])
     db[carrera][ano][semestre][asignatura].append(nuevo_item)
     guardar_datos(db)
+    
