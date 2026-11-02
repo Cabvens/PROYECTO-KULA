@@ -573,7 +573,8 @@ def cargar_datos():
                                 "tipo": "Resumen",
                                 "link": "https://drive.google.com/",
                                 "descripcion": "Síntesis comentada sobre Marx, Durkheim y Weber.",
-                                "votos": 12
+                                "votos": 12,
+                                "calificaciones": [5, 4, 5]
                             }
                         ]
                     }
@@ -596,5 +597,18 @@ def guardar_datos(datos):
 
 def agregar_material(db, carrera, ano, semestre, asignatura, nuevo_item):
     db.setdefault(carrera, {}).setdefault(ano, {}).setdefault(semestre, {}).setdefault(asignatura, [])
+    if "calificaciones" not in nuevo_item:
+        nuevo_item["calificaciones"] = []
     db[carrera][ano][semestre][asignatura].append(nuevo_item)
     guardar_datos(db)
+
+def agregar_calificacion(db, carrera, ano, semestre, asignatura, index, nota):
+    try:
+        item = db[carrera][ano][semestre][asignatura][index]
+        if "calificaciones" not in item:
+            item["calificaciones"] = []
+        item["calificaciones"].append(int(nota))
+        guardar_datos(db)
+        return True
+    except (KeyError, IndexError):
+        return False
