@@ -15,7 +15,7 @@ if "db" not in st.session_state:
     st.session_state.db = cargar_datos()
 
 st.title("📚 Proyecto Kula: Repositorio Académico FACSO")
-st.caption("Plataforma de colaboración académica estandarizada según la malla curricular oficial.")
+st.caption("Tu aporte puede cambiarle el semestre a alguien. ¡Comparte tus materiales y ayuda a la comunidad!")
 
 # Navegación lateral
 st.sidebar.header("🎯 Estado Académico")
