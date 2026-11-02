@@ -73,7 +73,7 @@ with tab_subir:
         form_titulo = st.text_input("Título del Material (Ej: Resumen Control 1)").strip()
         form_tipo = st.selectbox("Tipo de Documento", ["Resumen", "Guía de Ejercicios", "Prueba/Pauta Anterior", "Apunte de Clase", "Otro"])
         form_autor = st.text_input("Tu Nombre o Apodo (Opcional)", value="Anónimo").strip()
-        form_link = st.text_input("Enlace al archivo (opcional)").strip()
+        form_link = st.text_input("Enlace al archivo (Opcional)").strip()
         form_desc = st.text_area("Descripción breve").strip()
         
         if st.form_submit_button("🚀 Publicar Material"):
