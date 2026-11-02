@@ -13,7 +13,7 @@ st.set_page_config(page_title="Proyecto Kula", page_icon="📚", layout="wide")
 if "db" not in st.session_state:
     st.session_state.db = cargar_datos()
 
-st.title("📚 Proyecto Kula: Repositorio Académico FACSO")
+st.title("📚 Repositorio de materiales de estudio")
 st.caption("Plataforma de colaboración y transmisión de conocimientos entre pares.")
 
 # Navegación lateral
