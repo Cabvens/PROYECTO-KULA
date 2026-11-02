@@ -25,8 +25,8 @@ carrera_sel = st.sidebar.selectbox("Tu Carrera", CARRERAS)
 nivel_estudiante = st.sidebar.selectbox("Tu Nivel Académico Actual", ANOS, index=0)
 
 st.sidebar.divider()
-st.sidebar.header("🎯 Navegación de Contenido")
-ano_destino = st.sidebar.selectbox("Año a Consultar / Aportar", ANOS, index=ANOS.index(nivel_estudiante))
+st.sidebar.header("🎯 Estado académico")
+ano_destino = st.sidebar.selectbox("Año a consultar / aportar", ANOS, index=ANOS.index(nivel_estudiante))
 semestres_disponibles = obtener_semestres_por_ano(ano_destino)
 semestre_destino = st.sidebar.selectbox("Semestre", semestres_disponibles)
 
