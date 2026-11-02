@@ -1,12 +1,12 @@
 import streamlit as st
 from backend import CARRERAS, ANOS, SEMESTRES, cargar_datos, guardar_datos, agregar_material
 
-st.set_page_config(page_title="Proyecto Andamio", page_icon="📚", layout="wide")
+st.set_page_config(page_title="Proyecto KULA", page_icon="📚", layout="wide")
 
 if "db" not in st.session_state:
     st.session_state.db = cargar_datos()
 
-st.title("📚 Proyecto Andamio: Repositorio Académico FACSO")
+st.title("📚 Proyecto KULA: Repositorio Académico FACSO")
 
 # Navegación lateral
 st.sidebar.header("🎯 Filtros")
