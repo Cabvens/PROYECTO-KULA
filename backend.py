@@ -8,7 +8,7 @@ CARRERAS = [
     "Psicología",
     "Trabajo Social",
     "Antropología",
-    "Educación Parvularia",
+    "Educación Especial",
     "Educación Física"
 ]
 
