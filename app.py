@@ -17,7 +17,7 @@ st.title("📚 Repositorio de materiales de estudio")
 st.caption("Plataforma de colaboración y transmisión de conocimientos entre pares.")
 
 # Navegación lateral
-st.sidebar.header("🎯 Filtros de Selección")
+st.sidebar.header("🎯 Ingrese su estado académico")
 carrera_sel = st.sidebar.selectbox("Carrera", CARRERAS)
 ano_sel = st.sidebar.selectbox("Año", ANOS)
 semestre_sel = st.sidebar.selectbox("Semestre", SEMESTRES)
