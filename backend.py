@@ -12,14 +12,14 @@ CARRERAS = [
     "Educación Física"
 ]
 
-ANOS = ["1° Año", "2° Año", "3° Año", "4° Año", "5° Año"]
+ANOS = ["Primero", "Segundo", "Tercero", "Cuarto", "Quinto"]
 SEMESTRES = ["Semestre 1", "Semestre 2"]
 
 def cargar_datos():
     if not os.path.exists(DB_FILE):
         datos_demo = {
             "Sociología": {
-                "1° Año": {
+                "Primero": {
                     "Semestre 1": {
                         "Introducción a la Sociología": [
                             {
