@@ -33,7 +33,7 @@ with tab_explorar:
     asignaturas = list(carrera_dict.keys())
 
     if not asignaturas:
-        st.info("💡 No hay asignaturas registradas en esta sección aún. ¡Sé el primero en aportar en la pestaña 'Aportar Material'!")
+        st.info("💡 No hay asignaturas registradas en esta sección aún")
     else:
         asig_sel = st.selectbox("Selecciona Asignatura:", asignaturas)
         materiales = carrera_dict.get(asig_sel, [])
