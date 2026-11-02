@@ -4,20 +4,24 @@
             "Semestre 1": {
                 "Introducción a la Sociología": [
                     {
-                        "titulo": "Resumen Control 1 - Clasicos",
-                        "autor_subida": "Estudiante_3er_Año",
+                        "titulo": "Resumen Control 1 - Clásicos",
+                        "autor": "Estudiante_3er_Año",
                         "tipo": "Resumen",
-                        "link_o_ruta": "https://link.com/apunte1",
+                        "link": "https://link.com/apunte1",
                         "descripcion": "Cubre Marx, Durkheim y Weber",
-                        "utilidad_votos": 0
+                        "votos": 0,
+                        "calificaciones": []
                     }
                 ]
             }
         }
     },
-    "Psicología": {},
     "Trabajo Social": {},
-    "Antropología": {},
-    "Educación Parvularia": {},
-    "Educación Física": {}
+    "Psicología": {},
+    "Antropología (Social)": {},
+    "Antropología (Arqueología)": {},
+    "Antropología (Física)": {},
+    "Pedagogía en Educación Especial": {},
+    "Pedagogía en Educación Física": {},
+    "Pedagogía en Educación Parvularia": {}
 }
