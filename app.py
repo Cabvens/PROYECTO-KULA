@@ -10,29 +10,94 @@ from backend import (
     agregar_calificacion
 )
 
-st.set_page_config(page_title="Proyecto Kula", page_icon="📚", layout="wide")
+st.set_page_config(
+    page_title="Proyecto Kula | FACSO", 
+    page_icon="🔮", 
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
 
 if "db" not in st.session_state:
     st.session_state.db = cargar_datos()
 
-st.title("📚 Proyecto Kula: Repositorio Académico FACSO")
-st.caption("Plataforma de colaboración académica estandarizada según la malla curricular oficial.")
+# ------------------------------------------------------------------------------
+# INYECCIÓN DE CSS PERSONALIZADO (DISEÑO Y COLORES VIVOS)
+# ------------------------------------------------------------------------------
+st.markdown("""
+    <style>
+    /* Header Principal con Degradado Vibrante */
+    .hero-banner {
+        background: linear-gradient(135deg, #6C5CE7 0%, #a29bfe 50%, #ff7675 100%);
+        padding: 2rem;
+        border-radius: 16px;
+        color: white;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 10px 20px rgba(108, 92, 231, 0.2);
+    }
+    .hero-banner h1 {
+        color: white !important;
+        font-weight: 800;
+        margin-bottom: 0.2rem;
+    }
+    .hero-banner p {
+        font-size: 1.1rem;
+        opacity: 0.95;
+    }
+    
+    /* Estilos de Insignias (Badges) de Colores por Tipo de Material */
+    .badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: white;
+        margin-right: 8px;
+    }
+    .badge-resumen { background-color: #6C5CE7; }
+    .badge-pauta { background-color: #FF7675; }
+    .badge-guia { background-color: #00B894; }
+    .badge-clase { background-color: #0984E3; }
+    .badge-otro { background-color: #636E72; }
+    
+    /* Contenedor de Tarjetas con Borde de Color */
+    div[data-testid="stVerticalBlockBorderWrapper"] > div {
+        border-left: 6px solid #6C5CE7 !important;
+        border-radius: 12px !important;
+        background-color: #FFFFFF !important;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    div[data-testid="stVerticalBlockBorderWrapper"]:hover > div {
+        box-shadow: 0 6px 16px rgba(0,0,0,0.08) !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
 
 # ------------------------------------------------------------------------------
-# FILTROS LATERALES
+# BANNER SUPERIOR VIBRANTE
 # ------------------------------------------------------------------------------
-st.sidebar.header("👤 Perfil del Estudiante")
+st.markdown("""
+    <div class="hero-banner">
+        <h1>🔮 Proyecto Kula</h1>
+        <p>Circulación colaborativa del conocimiento académico en Ciencias Sociales — FACSO</p>
+    </div>
+""", unsafe_allow_html=True)
+
+# ------------------------------------------------------------------------------
+# BARRA LATERAL (BARRA DE ESTADO)
+# ------------------------------------------------------------------------------
+st.sidebar.markdown("### 👤 Perfil Estudiantil")
 carrera_sel = st.sidebar.selectbox("Tu Carrera", CARRERAS)
 nivel_estudiante = st.sidebar.selectbox("Tu Nivel Académico Actual", ANOS, index=0)
 
 st.sidebar.divider()
-st.sidebar.header("🎯 Navegación de Contenido")
+st.sidebar.markdown("### 🎯 Navegación")
 ano_destino = st.sidebar.selectbox("Año a Consultar / Aportar", ANOS, index=ANOS.index(nivel_estudiante))
 semestres_disponibles = obtener_semestres_por_ano(ano_destino)
 semestre_destino = st.sidebar.selectbox("Semestre", semestres_disponibles)
 
 st.sidebar.divider()
-st.sidebar.header("⭐ Filtro de Calidad")
+st.sidebar.markdown("### ⭐ Filtro de Calidad")
 filtro_estrellas = st.sidebar.selectbox(
     "Calificación mínima del apunte",
     ["Todas", "⭐ 4+ Estrellas", "⭐ 3+ Estrellas"]
@@ -42,39 +107,48 @@ ramos_oficiales = obtener_ramos_oficiales(carrera_sel, ano_destino, semestre_des
 
 tab_explorar, tab_subir = st.tabs(["🔍 Explorar Materiales", "📤 Aportar Material"])
 
+# Función auxiliar para renderizar la insignia adecuada
+def obtener_badge_html(tipo):
+    clases = {
+        "Resumen": "badge-resumen",
+        "Prueba/Pauta Anterior": "badge-pauta",
+        "Guía de Ejercicios": "badge-guia",
+        "Apunte de Clase": "badge-clase"
+    }
+    cls = clases.get(tipo, "badge-otro")
+    return f'<span class="badge {cls}">{tipo}</span>'
+
 # ------------------------------------------------------------------------------
 # TAB 1: EXPLORAR MATERIALES
 # ------------------------------------------------------------------------------
 with tab_explorar:
-    st.subheader(f"Navegando: {carrera_sel} > {ano_destino} > {semestre_destino}")
+    st.markdown(f"#### 📌 Mostrando: **{carrera_sel}** | **{ano_destino}** | **{semestre_destino}**")
 
     if not ramos_oficiales:
         st.warning("No hay asignaturas registradas en la malla curricular para este semestre específico.")
     else:
-        asig_sel = st.selectbox("Selecciona la Asignatura Oficial:", ramos_oficiales, key="explorar_asig")
+        asig_sel = st.selectbox("📚 Selecciona la Asignatura Oficial:", ramos_oficiales, key="explorar_asig")
         
         carrera_dict = st.session_state.db.get(carrera_sel, {}).get(ano_destino, {}).get(semestre_destino, {})
         materiales = carrera_dict.get(asig_sel, [])
 
-        st.markdown(f"### Materiales para **{asig_sel}** ({len(materiales)})")
+        st.markdown(f"### Materiales en **{asig_sel}** ({len(materiales)})")
 
         if not materiales:
-            st.info(f"💡 Aún no hay archivos subidos para {asig_sel}. ¡Sé el primero en aportar en la pestaña 'Aportar Material'!")
+            st.info(f"💡 Aún no hay archivos subidos para {asig_sel}. ¡Sé el primero en aportar!")
         else:
             materiales_visibles = 0
             for idx, item in enumerate(materiales):
                 titulo = item.get("titulo", "Sin título")
-                tipo = item.get("tipo", "Material")
+                tipo = item.get("tipo", "Otro")
                 autor = item.get("autor", "Anónimo")
                 desc = item.get("descripcion", "")
                 link = item.get("link", "#")
                 votos = item.get("votos", 0)
                 califs = item.get("calificaciones", [])
 
-                # Cálculo de promedio de completitud/calidad
                 promedio = round(sum(califs) / len(califs), 1) if califs else 0.0
 
-                # Aplicar filtro de estrellas
                 if filtro_estrellas == "⭐ 4+ Estrellas" and promedio < 4.0 and len(califs) > 0:
                     continue
                 if filtro_estrellas == "⭐ 3+ Estrellas" and promedio < 3.0 and len(califs) > 0:
@@ -83,22 +157,23 @@ with tab_explorar:
                 materiales_visibles += 1
 
                 with st.container(border=True):
-                    col1, col2 = st.columns([3.5, 1.5])
+                    col1, col2 = st.columns([3.6, 1.4])
                     with col1:
-                        st.markdown(f"#### 📄 {titulo}")
-                        st.markdown(f"**Tipo:** `{tipo}` | **Aportado por:** _{autor}_")
+                        badge_html = obtener_badge_html(tipo)
+                        st.markdown(f"### 📄 {titulo}", unsafe_allow_html=True)
+                        st.markdown(f"{badge_html} **Aportado por:** _{autor}_", unsafe_allow_html=True)
+                        
                         if desc:
                             st.write(desc)
-                        st.markdown(f"🔗 [Acceder al enlace del archivo]({link})")
+                        st.markdown(f"🔗 [**Acceder al archivo digital**]({link})")
 
                     with col2:
-                        # Métrica de Utilidad y Calificación por pares
-                        st.metric(label="Utilidad", value=f"👍 {votos}")
+                        st.metric(label="Reconocimiento", value=f"👍 {votos}")
                         
                         if califs:
-                            st.caption(f"⭐ Calificación: **{promedio} / 5.0** ({len(califs)} eval.)")
+                            st.markdown(f"⭐ **{promedio} / 5.0** <small>({len(califs)} eval.)</small>", unsafe_allow_html=True)
                         else:
-                            st.caption("⭐ Calificación: _Sin evaluar aún_")
+                            st.caption("⭐ _Sin evaluar aún_")
 
                         col_btn1, col_btn2 = st.columns(2)
                         with col_btn1:
@@ -109,7 +184,7 @@ with tab_explorar:
 
                         with col_btn2:
                             with st.popover("⭐ Evaluar"):
-                                nota = st.slider("Calidad y Completitud", min_value=1, max_value=5, value=5, key=f"slide_{asig_sel}_{idx}")
+                                nota = st.slider("Calidad / Completitud", 1, 5, 5, key=f"slide_{asig_sel}_{idx}")
                                 if st.button("Enviar", key=f"rate_{asig_sel}_{idx}"):
                                     agregar_calificacion(
                                         st.session_state.db, 
@@ -120,29 +195,29 @@ with tab_explorar:
                                         idx, 
                                         nota
                                     )
-                                    st.success("¡Evaluación enviada!")
+                                    st.success("¡Enviado!")
                                     st.rerun()
 
             if materiales_visibles == 0 and len(materiales) > 0:
-                st.warning("No hay materiales que cumplan con la calificación mínima seleccionada en la barra lateral.")
+                st.warning("No hay materiales que cumplan con la calificación mínima seleccionada en el filtro lateral.")
 
 # ------------------------------------------------------------------------------
-# TAB 2: APORTAR MATERIAL (FRICCIÓN CERO AL SUBIR)
+# TAB 2: APORTAR MATERIAL
 # ------------------------------------------------------------------------------
 with tab_subir:
-    st.subheader("Formulario de Aporte Académico")
+    st.markdown("### 📤 Formulario de Aporte Académico")
 
     idx_estudiante = ANOS.index(nivel_estudiante)
     idx_destino = ANOS.index(ano_destino)
 
     if idx_destino > idx_estudiante:
-        st.warning(
-            f"🔒 **Restricción de Nivel Académico:** Tu nivel actual registrado es **{nivel_estudiante}**. "
-            f"No estás habilitado para subir material a **{ano_destino}**. "
+        st.error(
+            f"🔒 **Restricción de Nivel Académico:** Tu nivel actual es **{nivel_estudiante}**. "
+            f"No puedes subir material a **{ano_destino}**. "
             f"Solo puedes aportar apuntes para tu año actual o años anteriores."
         )
     else:
-        st.info(f"📌 Publicando material en: **{carrera_sel}** > **{ano_destino}** > **{semestre_destino}**")
+        st.success(f"🎯 **Destino del aporte:** {carrera_sel} ➔ {ano_destino} ➔ {semestre_destino}")
 
         if not ramos_oficiales:
             st.error("La sección seleccionada no posee asignaturas en la malla oficial.")
@@ -155,7 +230,7 @@ with tab_subir:
                 form_link = st.text_input("Enlace al archivo (Google Drive, Dropbox, etc.)").strip()
                 form_desc = st.text_area("Descripción breve del contenido").strip()
 
-                enviado = st.form_submit_button("🚀 Publicar Material")
+                enviado = st.form_submit_button("🚀 Publicar en el Repositorio")
 
                 if enviado:
                     if form_asig and form_titulo and form_link:
