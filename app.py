@@ -260,7 +260,7 @@ with tab_subir:
                 
                 # Carga de archivos físicos desde el almacenamiento local
                 form_archivo = st.file_uploader(
-                    "📁 Cargar archivo desde tu dispositivo (.pdf, .r, .py, .csv, .md, .docx, .xlsx, .zip)", 
+                    "📁 Cargar archivo desde tu dispositivo", 
                     type=["pdf", "r", "py", "csv", "md", "txt", "docx", "xlsx", "zip", "pptx"]
                 )
                 
