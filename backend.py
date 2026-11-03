@@ -569,7 +569,6 @@ def guardar_archivo_local(uploaded_file):
     if uploaded_file is None:
         return None
     
-    # Asegurar nombre limpio y evitar colisiones
     nombre_seguro = uploaded_file.name.replace(" ", "_")
     ruta_destino = os.path.join(UPLOADS_DIR, nombre_seguro)
     
@@ -630,3 +629,4 @@ def agregar_calificacion(db, carrera, ano, semestre, asignatura, index, nota):
         return True
     except (KeyError, IndexError):
         return False
+
