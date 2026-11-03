@@ -2,6 +2,10 @@ import json
 import os
 
 DB_FILE = "repositorio_data.json"
+UPLOADS_DIR = "uploads"
+
+# Crear carpeta de subidas si no existe
+os.makedirs(UPLOADS_DIR, exist_ok=True)
 
 SEMESTRES_POR_ANO = {
     "1° Año": ["Semestre 1", "Semestre 2"],
@@ -559,6 +563,20 @@ def obtener_semestres_por_ano(ano):
 
 def obtener_ramos_oficiales(carrera, ano, semestre):
     return MALLA_CURRICULAR.get(carrera, {}).get(ano, {}).get(semestre, [])
+
+def guardar_archivo_local(uploaded_file):
+    """Guarda un archivo subido por el usuario en el directorio uploads/."""
+    if uploaded_file is None:
+        return None
+    
+    # Asegurar nombre limpio y evitar colisiones
+    nombre_seguro = uploaded_file.name.replace(" ", "_")
+    ruta_destino = os.path.join(UPLOADS_DIR, nombre_seguro)
+    
+    with open(ruta_destino, "wb") as f:
+        f.write(uploaded_file.getbuffer())
+        
+    return ruta_destino
 
 def cargar_datos():
     if not os.path.exists(DB_FILE):

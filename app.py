@@ -1,3 +1,4 @@
+import os
 import streamlit as st
 from backend import (
     CARRERAS,
@@ -7,7 +8,8 @@ from backend import (
     cargar_datos,
     guardar_datos,
     agregar_material,
-    agregar_calificacion
+    agregar_calificacion,
+    guardar_archivo_local
 )
 
 st.set_page_config(
@@ -17,11 +19,9 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Inicializar Base de Datos en sesión
 if "db" not in st.session_state:
     st.session_state.db = cargar_datos()
 
-# Inicializar Registro de Votos del Usuario (Toggle State)
 if "votos_usuario" not in st.session_state:
     st.session_state.votos_usuario = set()
 
@@ -60,6 +60,7 @@ st.markdown("""
     .badge-pauta { background-color: #FF7675; }
     .badge-guia { background-color: #00B894; }
     .badge-clase { background-color: #0984E3; }
+    .badge-codigo { background-color: #D63031; }
     .badge-otro { background-color: #636E72; }
     
     div[data-testid="stVerticalBlockBorderWrapper"] > div {
@@ -113,7 +114,8 @@ def obtener_badge_html(tipo):
         "Resumen": "badge-resumen",
         "Prueba/Pauta Anterior": "badge-pauta",
         "Guía de Ejercicios": "badge-guia",
-        "Apunte de Clase": "badge-clase"
+        "Apunte de Clase": "badge-clase",
+        "Script / Código (.R, .py, .csv)": "badge-codigo"
     }
     cls = clases.get(tipo, "badge-otro")
     return f'<span class="badge {cls}">{tipo}</span>'
@@ -143,7 +145,9 @@ with tab_explorar:
                 tipo = item.get("tipo", "Otro")
                 autor = item.get("autor", "Anónimo")
                 desc = item.get("descripcion", "")
-                link = item.get("link", "#")
+                link = item.get("link", "")
+                archivo_path = item.get("archivo_path", None)
+                nombre_archivo = item.get("nombre_archivo", "archivo")
                 votos = item.get("votos", 0)
                 califs = item.get("calificaciones", [])
 
@@ -155,8 +159,6 @@ with tab_explorar:
                     continue
 
                 materiales_visibles += 1
-
-                # Clave única para identificar la interacción del usuario con este ítem
                 item_id = f"{carrera_sel}_{ano_destino}_{semestre_destino}_{asig_sel}_{idx}"
                 ha_votado = item_id in st.session_state.votos_usuario
 
@@ -169,7 +171,18 @@ with tab_explorar:
                         
                         if desc:
                             st.write(desc)
-                        st.markdown(f"🔗 [**Acceder al archivo digital**]({link})")
+                        
+                        # Manejo de descarga directa o enlace externo
+                        if archivo_path and os.path.exists(archivo_path):
+                            with open(archivo_path, "rb") as file_data:
+                                st.download_button(
+                                    label=f"📥 Descargar {nombre_archivo}",
+                                    data=file_data,
+                                    file_name=nombre_archivo,
+                                    key=f"dl_{asig_sel}_{idx}"
+                                )
+                        elif link:
+                            st.markdown(f"🔗 [**Acceder al archivo digital (Enlace)**]({link})")
 
                     with col2:
                         st.metric(label="Reconocimiento", value=f"👍 {votos}")
@@ -181,9 +194,7 @@ with tab_explorar:
 
                         col_btn1, col_btn2 = st.columns(2)
                         with col_btn1:
-                            # Etiqueta dinámica según el estado del voto
                             texto_voto = "💚 Útil" if ha_votado else "👍 Útil"
-                            
                             if st.button(texto_voto, key=f"voto_{asig_sel}_{idx}"):
                                 if ha_votado:
                                     item["votos"] = max(0, votos - 1)
@@ -215,7 +226,7 @@ with tab_explorar:
                 st.warning("No hay materiales que cumplan con la calificación mínima seleccionada en el filtro lateral.")
 
 # ------------------------------------------------------------------------------
-# TAB 2: APORTAR MATERIAL
+# TAB 2: APORTAR MATERIAL (SOPORTE PARA ARCHIVOS DIRECTOS Y ENLACES)
 # ------------------------------------------------------------------------------
 with tab_subir:
     st.markdown("### 📤 Formulario de Aporte Académico")
@@ -237,21 +248,44 @@ with tab_subir:
         else:
             with st.form("form_aporte_simplificado", clear_on_submit=True):
                 form_asig = st.selectbox("Asignatura Oficial de la Malla", ramos_oficiales, key="subir_asig")
-                form_titulo = st.text_input("Título del Material (Ej: Resumen Control 1)").strip()
-                form_tipo = st.selectbox("Tipo de Documento", ["Resumen", "Guía de Ejercicios", "Prueba/Pauta Anterior", "Apunte de Clase", "Otro"])
+                form_titulo = st.text_input("Título del Material (Ej: Guía resuelta Estadística R)").strip()
+                form_tipo = st.selectbox("Tipo de Documento", [
+                    "Resumen", 
+                    "Script / Código (.R, .py, .csv)", 
+                    "Guía de Ejercicios", 
+                    "Prueba/Pauta Anterior", 
+                    "Apunte de Clase", 
+                    "Otro"
+                ])
+                
+                # Carga de archivos físicos desde el almacenamiento local
+                form_archivo = st.file_uploader(
+                    "📁 Cargar archivo desde tu dispositivo (.pdf, .r, .py, .csv, .md, .docx, .xlsx, .zip)", 
+                    type=["pdf", "r", "py", "csv", "md", "txt", "docx", "xlsx", "zip", "pptx"]
+                )
+                
+                form_link = st.text_input("O pega un Enlace Externo (Google Drive, Dropbox, etc. - Opcional si subiste archivo)").strip()
                 form_autor = st.text_input("Tu Nombre o Apodo (Opcional)", value="Anónimo").strip()
-                form_link = st.text_input("Enlace al archivo (Google Drive, Dropbox, etc.)").strip()
                 form_desc = st.text_area("Descripción breve del contenido").strip()
 
                 enviado = st.form_submit_button("🚀 Publicar en el Repositorio")
 
                 if enviado:
-                    if form_asig and form_titulo and form_link:
+                    if form_asig and form_titulo and (form_archivo is not None or form_link):
+                        ruta_guardada = None
+                        nombre_original = None
+                        
+                        if form_archivo is not None:
+                            ruta_guardada = guardar_archivo_local(form_archivo)
+                            nombre_original = form_archivo.name
+
                         nuevo = {
                             "titulo": form_titulo,
                             "autor": form_autor if form_autor else "Anónimo",
                             "tipo": form_tipo,
                             "link": form_link,
+                            "archivo_path": ruta_guardada,
+                            "nombre_archivo": nombre_original,
                             "descripcion": form_desc,
                             "votos": 0,
                             "calificaciones": []
@@ -260,4 +294,4 @@ with tab_subir:
                         st.success(f"¡Material '{form_titulo}' publicado con éxito en {form_asig}!")
                         st.rerun()
                     else:
-                        st.error("Por favor completa los campos obligatorios: Título y Enlace.")
+                        st.error("Por favor completa los campos obligatorios: Título y adjunta un Archivo o un Enlace.")
