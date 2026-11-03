@@ -9,8 +9,14 @@
                         "tipo": "Resumen",
                         "link": "https://link.com/apunte1",
                         "descripcion": "Cubre Marx, Durkheim y Weber",
-                        "votos": 0,
-                        "calificaciones": []
+                        "votos": 12,
+                        "calificaciones": [
+                            5,
+                            1,
+                            1,
+                            1,
+                            1
+                        ]
                     }
                 ]
             }

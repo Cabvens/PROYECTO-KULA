@@ -17,15 +17,19 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+# Inicializar Base de Datos en sesión
 if "db" not in st.session_state:
     st.session_state.db = cargar_datos()
 
+# Inicializar Registro de Votos del Usuario (Toggle State)
+if "votos_usuario" not in st.session_state:
+    st.session_state.votos_usuario = set()
+
 # ------------------------------------------------------------------------------
-# INYECCIÓN DE CSS PERSONALIZADO (DISEÑO Y COLORES VIVOS)
+# ESTILOS CSS PERSONALIZADOS
 # ------------------------------------------------------------------------------
 st.markdown("""
     <style>
-    /* Header Principal con Degradado Vibrante */
     .hero-banner {
         background: linear-gradient(135deg, #6C5CE7 0%, #a29bfe 50%, #ff7675 100%);
         padding: 2rem;
@@ -43,8 +47,6 @@ st.markdown("""
         font-size: 1.1rem;
         opacity: 0.95;
     }
-    
-    /* Estilos de Insignias (Badges) de Colores por Tipo de Material */
     .badge {
         display: inline-block;
         padding: 4px 12px;
@@ -60,7 +62,6 @@ st.markdown("""
     .badge-clase { background-color: #0984E3; }
     .badge-otro { background-color: #636E72; }
     
-    /* Contenedor de Tarjetas con Borde de Color */
     div[data-testid="stVerticalBlockBorderWrapper"] > div {
         border-left: 6px solid #6C5CE7 !important;
         border-radius: 12px !important;
@@ -74,7 +75,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ------------------------------------------------------------------------------
-# BANNER SUPERIOR VIBRANTE
+# BANNER SUPERIOR
 # ------------------------------------------------------------------------------
 st.markdown("""
     <div class="hero-banner">
@@ -84,7 +85,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ------------------------------------------------------------------------------
-# BARRA LATERAL (BARRA DE ESTADO)
+# BARRA LATERAL
 # ------------------------------------------------------------------------------
 st.sidebar.markdown("### 👤 Perfil Estudiantil")
 carrera_sel = st.sidebar.selectbox("Tu Carrera", CARRERAS)
@@ -107,7 +108,6 @@ ramos_oficiales = obtener_ramos_oficiales(carrera_sel, ano_destino, semestre_des
 
 tab_explorar, tab_subir = st.tabs(["🔍 Explorar Materiales", "📤 Aportar Material"])
 
-# Función auxiliar para renderizar la insignia adecuada
 def obtener_badge_html(tipo):
     clases = {
         "Resumen": "badge-resumen",
@@ -156,6 +156,10 @@ with tab_explorar:
 
                 materiales_visibles += 1
 
+                # Clave única para identificar la interacción del usuario con este ítem
+                item_id = f"{carrera_sel}_{ano_destino}_{semestre_destino}_{asig_sel}_{idx}"
+                ha_votado = item_id in st.session_state.votos_usuario
+
                 with st.container(border=True):
                     col1, col2 = st.columns([3.6, 1.4])
                     with col1:
@@ -177,8 +181,17 @@ with tab_explorar:
 
                         col_btn1, col_btn2 = st.columns(2)
                         with col_btn1:
-                            if st.button("👍 Útil", key=f"voto_{asig_sel}_{idx}"):
-                                item["votos"] = votos + 1
+                            # Etiqueta dinámica según el estado del voto
+                            texto_voto = "💚 Útil" if ha_votado else "👍 Útil"
+                            
+                            if st.button(texto_voto, key=f"voto_{asig_sel}_{idx}"):
+                                if ha_votado:
+                                    item["votos"] = max(0, votos - 1)
+                                    st.session_state.votos_usuario.remove(item_id)
+                                else:
+                                    item["votos"] = votos + 1
+                                    st.session_state.votos_usuario.add(item_id)
+                                
                                 guardar_datos(st.session_state.db)
                                 st.rerun()
 
