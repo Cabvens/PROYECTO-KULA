@@ -264,8 +264,8 @@ with tab_subir:
                     type=["pdf", "r", "py", "csv", "md", "txt", "docx", "xlsx", "zip", "pptx"]
                 )
                 
-                form_link = st.text_input("O pega un Enlace Externo (Google Drive, Dropbox, etc. - Opcional si subiste archivo)").strip()
-                form_autor = st.text_input("Tu Nombre o Apodo (Opcional)", value="Anónimo").strip()
+                form_link = st.text_input("O pega un enlace...").strip()
+                form_autor = st.text_input("Tu nombre o apodo (Opcional)", value="Anónimo").strip()
                 form_desc = st.text_area("Descripción breve del contenido").strip()
 
                 enviado = st.form_submit_button("🚀 Publicar en el Repositorio")
